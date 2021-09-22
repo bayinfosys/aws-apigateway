@@ -9,6 +9,8 @@
 resource "aws_api_gateway_rest_api" "this" {
   name = var.name
   description = var.description
+
+  binary_media_types = var.binary_media_types
 }
 
 resource "aws_api_gateway_resource" "this" {

@@ -46,3 +46,9 @@ variable "cors_default_allow_headers" {
   description = "default http headers allowed by CORS for reference"
   default = ["Content-Type", "X-Amz-Date", "Authorization", "X-Api-Key", "X-Amz-Security-Token"]
 }
+
+variable "binary_media_types" {
+  type = list(string)
+  description = "media types which are accepted by the gateway in their transmitted encoding, e.g. multipart/form-data, image/png, etc"
+  default = ["multipart/form-data"]
+}
