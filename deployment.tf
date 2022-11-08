@@ -8,16 +8,19 @@ resource "aws_api_gateway_deployment" "this" {
   triggers = {
     redeployment = sha1(jsonencode(concat([
       aws_api_gateway_rest_api.this,
-      aws_api_gateway_resource.this,
-
-      aws_api_gateway_method.cors,
-      aws_api_gateway_method_response.cors,
-      aws_api_gateway_integration.cors,
-      aws_api_gateway_integration_response.cors
+      aws_api_gateway_resource.proxy,
     ],
-    [for k in var.target_methods: aws_api_gateway_method.default[k]],
-    [for k in var.target_methods: aws_api_gateway_method_response.default[k]],
-    [for k in var.target_methods: aws_api_gateway_integration.default[k]]
+    aws_api_gateway_method.cors,
+    aws_api_gateway_method_response.cors,
+    aws_api_gateway_integration.cors,
+    aws_api_gateway_integration_response.cors,
+
+    [for k in var.target_methods: aws_api_gateway_method.root[k]],
+    [for k in var.target_methods: aws_api_gateway_method_response.root[k]],
+    [for k in var.target_methods: aws_api_gateway_integration.root[k]],
+    [for k in var.target_methods: aws_api_gateway_method.proxy[k]],
+    [for k in var.target_methods: aws_api_gateway_method_response.proxy[k]],
+    [for k in var.target_methods: aws_api_gateway_integration.proxy[k]]
     )))
   }
 

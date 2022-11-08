@@ -1,0 +1,150 @@
+<html>
+<head>
+<title>cognito redirect example</title>
+
+<script type="text/javascript">
+function login_via_cognito(e) {
+  e.preventDefault(true);
+
+  // NB: if the app_name and aws_region are known
+  //     this uri can be set as the 'action' attribute
+  //     of the form element
+  var target = [
+    e.target.elements.app_name.value,
+    "auth",
+    e.target.elements.aws_region.value,
+    "amazoncognito.com/login"
+  ].join(".");
+
+  let uri = new URL("https://" + target);
+  uri.searchParams.append("client_id", e.target.elements.client_id.value);
+  uri.searchParams.append("response_type", e.target.elements.response_type.value);
+  uri.searchParams.append("redirect_uri", e.target.elements.redirect_uri.value);
+  uri.searchParams.append("scope", "openid");
+
+  window.location.href = uri.href;
+}
+
+function parseJwt (token) {
+  // https://stackoverflow.com/questions/38552003/how-to-decode-jwt-token-in-javascript-without-using-a-library
+  var base64Url = token.split('.')[1];
+  var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+
+  return JSON.parse(jsonPayload);
+};
+
+function body_on_load() {
+  var params = new URLSearchParams(window.location.search);
+  var nparams = new URLSearchParams(window.location.hash.slice(1));
+
+  if (params.has("code")) {
+    document.getElementById("cognito-response").innerHTML = "<p>code:<i>" + params.get("code") + "</i></p>";
+  } else if (nparams.has("access_token")) {
+    let token = {
+      "id_token": nparams.get("id_token"),
+      "access_token": nparams.get("access_token"),
+      "expires_in": nparams.get("expires_in"),
+      "token_type": nparams.get("token_type"),
+    }
+
+    // NB: cognito /oauth2/userinfo endpoint has cors issues when called from the browser,
+    // we can parse the jwt token in 'id_token' and get the same info.
+    let userinfo = parseJwt(token.id_token);
+
+    // convert the token object to a ul/li tree for DOM insertion
+    let kvs = Object.entries(token).map(item => { return item.join(":");})
+    let listr = kvs.map(item => { return ["<li>", item, "</li>"].join("");}).join("");
+    let ulstr = ["<ul>", listr, "</ul>"].join("");
+
+    document.getElementById("cognito-response").innerHTML = 
+    ["<h2>", userinfo["cognito:username"], "</h2>", ulstr].join("");
+  }
+  else {
+    document.getElementById("cognito-response").innerHTML = "no code found";
+  }
+}
+
+function get_user_info(e) {
+  // NB: this /oauth2/userinfo endpoint cannot be called from a browser due to cors restrictions
+  // the same call will work fine from curl or a backend.
+  e.preventDefault(true);
+
+  let token = JSON.parse(document.getElementById("cognito-response").innerHTML);
+
+  console.log(token);
+
+  // NB: if the app_name and aws_region are known
+  //     this uri can be set as the 'action' attribute
+  //     of the form element
+  var uri = [
+    e.target.elements.app_name.value,
+    "auth",
+    e.target.elements.aws_region.value,
+    "amazoncognito.com/oauth2/userinfo"
+  ].join(".");
+
+  fetch("https://" + uri, {
+    mode: "cors",
+    credentials: "include",
+    headers: {
+      "Origin": "http://localhost:8000",
+      "Authorization": "Bearer " + e.target.elements.access_token.value,
+    }}
+
+  )
+  .then((resp) => {resp.json();})
+  .then((data) => {console.log(data);});
+}
+</script>
+</head>
+<body>
+<h1>cognito redirect example</h1>
+
+<ol>
+<li>serve this page from the <i>redirect_uri</i> location of the cognito application (i.e. <i>http://localhost:8000</i>)</li>
+<li>complete the form to build the cognito login URI and query string</li>
+<li>login at the cognito endpoint</li>
+<li>be redirected back to this page with credentials</li>
+</ol>
+
+<hr />
+
+<h2>cognito application details</h2>
+<form method="get" onsubmit="login_via_cognito(event)">
+<label for="aws-region">aws region</label><input name="aws_region" type="text" value="eu-west-2" /><br />
+<label for="app-name">app name</label><input name="app_name" type="text" /><br />
+<label for="client_id">client id</label><input name="client_id" type="text" /><br />
+<label for="response_type">response type</label><select name="response_type">
+  <option value="code">code</option>
+  <option value="token">token (implict)</option>
+</select><br />
+<label for="redirect_uri">redirect uri</label><input name="redirect_uri" type="text" /><br />
+
+<input type="submit" value="login via cognito" />
+</form>
+
+<hr />
+
+<h2>cognito response</h2>
+<div id="cognito-response"></div>
+
+<hr />
+
+<h2>fetch userinfo</h2>
+<form method="get" onsubmit="get_user_info(event)">
+<label for="aws-region">aws region</label><input name="aws_region" type="text" value="eu-west-2" /><br />
+<label for="app-name">app name</label><input name="app_name" type="text" /><br />
+<label for="access_token">access token</label><input name="access_token" type="text" /><br />
+
+<input type="submit" value="get userinfo" />
+</form>
+
+<script type="text/javascript">
+body_on_load();
+</script>
+
+</body>
+</html>

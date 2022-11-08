@@ -17,6 +17,11 @@ variable "gateway_domain" {
   description = "API gateway domain"
 }
 
+variable "cognito_domain" {
+  type = string
+  description = "cognito auth domain"
+}
+
 variable "cognito_user_pool_arn" {
   type = string
   description = "cognito authentication pool"
@@ -51,4 +56,16 @@ variable "binary_media_types" {
   type = list(string)
   description = "media types which are accepted by the gateway in their transmitted encoding, e.g. multipart/form-data, image/png, etc"
   default = ["multipart/form-data"]
+}
+
+variable "tags" {
+  type = map
+  description = "tags to apply to created objects"
+  default = {}
+}
+
+variable "use_cognito" {
+  type = bool
+  description = "create an API authorizer with cognito details"
+  default = false
 }
