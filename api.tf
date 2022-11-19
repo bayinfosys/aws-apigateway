@@ -38,7 +38,7 @@ resource "aws_api_gateway_method" "root" {
   }
 
   # NB: we need to make a 'fake object' which matches the var.cognito value object for lookup to work
-  authorization = lookup(lookup(var.cognito, "root", tomap({authorizer_id=null, cognito_domain="test", type="NONE"})), "type", "NONE")
+  authorization = lookup(lookup(var.cognito, "root", tomap({authorizer_id=null, cognito_domain="", type="NONE"})), "type", "NONE")
   authorizer_id = lookup(lookup(aws_api_gateway_authorizer.authorizer, "root", tomap({})), "id", null)
 }
 
@@ -92,8 +92,8 @@ resource "aws_api_gateway_method" "proxy" {
     "method.request.header.host" = true
   }
 
-  authorization = lookup(var.cognito["proxy"], "type", "NONE")
-  authorizer_id = lookup(aws_api_gateway_authorizer.authorizer["proxy"], "id", null)
+  authorization = lookup(lookup(var.cognito, "proxy", tomap({authorizer_id=null, cognito_domain="", type="NONE"})), "type", "NONE")
+  authorizer_id = lookup(lookup(aws_api_gateway_authorizer.authorizer, "proxy", tomap({})), "id", null)
 }
 
 resource "aws_api_gateway_integration" "proxy" {

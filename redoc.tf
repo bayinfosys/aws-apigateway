@@ -21,8 +21,8 @@ resource "aws_api_gateway_method" "redoc" {
     "method.request.header.host" = true
   }
 
-  authorization = lookup(var.cognito["redoc"], "type", "NONE")
-  authorizer_id = lookup(aws_api_gateway_authorizer.authorizer["redoc"], "id", null)
+  authorization = lookup(lookup(var.cognito, "redoc", tomap({authorizer_id=null, cognito_domain="", type="NONE"})), "type", "NONE")
+  authorizer_id = lookup(lookup(aws_api_gateway_authorizer.authorizer, "redoc", tomap({})), "id", null)
 }
 
 resource "aws_api_gateway_integration" "redoc" {

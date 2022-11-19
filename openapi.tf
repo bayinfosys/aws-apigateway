@@ -21,8 +21,8 @@ resource "aws_api_gateway_method" "openapi" {
     "method.request.header.host" = true
   }
 
-  authorization = lookup(var.cognito["openapi"], "type", "NONE")
-  authorizer_id = lookup(aws_api_gateway_authorizer.authorizer["openapi"], "id", null)
+  authorization = lookup(lookup(var.cognito, "openapi", tomap({authorizer_id=null, cognito_domain="", type="NONE"})), "type", "NONE")
+  authorizer_id = lookup(lookup(aws_api_gateway_authorizer.authorizer, "openapi", tomap({})), "id", null)
 }
 
 resource "aws_api_gateway_integration" "openapi" {
