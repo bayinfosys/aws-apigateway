@@ -40,9 +40,9 @@ resource "aws_api_gateway_integration" "redoc" {
   request_parameters =  {
     "integration.request.path.redoc" = "method.request.path.redoc"
     "integration.request.header.host" = "method.request.header.host"
-    "integration.request.header.x-cognito-subscriber-username" = "context.authorizer.claims.username"
-    "integration.request.header.x-cognito-subscriber-email" = "context.authorizer.claims.email"
-    "integration.request.header.x-cognito-subscriber-id"    = "context.authorizer.claims.sub"
+#    "integration.request.header.x-cognito-subscriber-username" = "context.authorizer.claims.username"
+#    "integration.request.header.x-cognito-subscriber-email" = "context.authorizer.claims.email"
+#    "integration.request.header.x-cognito-subscriber-id"    = "context.authorizer.claims.sub"
   }
 }
 
@@ -54,10 +54,10 @@ resource "aws_api_gateway_method_response" "redoc" {
   http_method = aws_api_gateway_method.redoc[each.key].http_method
   status_code = "200"
 
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Credentials" = false
-    "method.response.header.Access-Control-Allow-Headers"     = false
-    "method.response.header.Access-Control-Allow-Methods"     = false
-    "method.response.header.Access-Control-Allow-Origin"      = false
-  }
+#  response_parameters = {
+#    "method.response.header.Access-Control-Allow-Credentials" = false
+#    "method.response.header.Access-Control-Allow-Headers"     = false
+#    "method.response.header.Access-Control-Allow-Methods"     = false
+#    "method.response.header.Access-Control-Allow-Origin"      = false
+#  }
 }
