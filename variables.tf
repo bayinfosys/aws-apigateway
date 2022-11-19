@@ -15,16 +15,6 @@ variable "target_methods" {
 variable "gateway_domain" {
   type = string
   description = "API gateway domain"
-}
-
-variable "cognito_domain" {
-  type = string
-  description = "cognito auth domain"
-}
-
-variable "cognito_user_pool_arn" {
-  type = string
-  description = "cognito authentication pool"
   default = ""
 }
 
@@ -64,8 +54,13 @@ variable "tags" {
   default = {}
 }
 
-variable "use_cognito" {
-  type = bool
-  description = "create an API authorizer with cognito details"
-  default = false
+variable "cognito" {
+  type = map(object({
+    authorizer_id = string
+    cognito_domain = string
+    type = string
+  }))
 }
+
+# type must be COGNITO_USER_POOLS
+# authorizer_id = cognito_user_pool_arn = string

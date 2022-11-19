@@ -32,13 +32,14 @@ resource "aws_api_gateway_method" "root" {
   rest_api_id   = aws_api_gateway_rest_api.this.id
   resource_id   = aws_api_gateway_rest_api.this.root_resource_id
   http_method   = each.key
-  authorization = length(var.cognito_user_pool_arn) == 0 ? "NONE" : "COGNITO_USER_POOLS"
   request_parameters = {
     "method.request.path.proxy" = true
     "method.request.header.host" = true
   }
 
-  authorizer_id = length(var.cognito_user_pool_arn) > 1 ? aws_api_gateway_authorizer.authorizer[0].id : null
+  # NB: we need to make a 'fake object' which matches the var.cognito value object for lookup to work
+  authorization = lookup(lookup(var.cognito, "root", tomap({authorizer_id=null, cognito_domain="test", type="NONE"})), "type", "NONE")
+  authorizer_id = lookup(lookup(aws_api_gateway_authorizer.authorizer, "root", tomap({})), "id", null)
 }
 
 resource "aws_api_gateway_integration" "root" {
@@ -86,13 +87,13 @@ resource "aws_api_gateway_method" "proxy" {
   rest_api_id   = aws_api_gateway_rest_api.this.id
   resource_id   = aws_api_gateway_resource.proxy.id
   http_method   = each.key
-  authorization = length(var.cognito_user_pool_arn) == 0 ? "NONE" : "COGNITO_USER_POOLS"
   request_parameters = {
     "method.request.path.proxy" = true
     "method.request.header.host" = true
   }
 
-  authorizer_id = length(var.cognito_user_pool_arn) > 1 ? aws_api_gateway_authorizer.authorizer[0].id : null
+  authorization = lookup(var.cognito["proxy"], "type", "NONE")
+  authorizer_id = lookup(aws_api_gateway_authorizer.authorizer["proxy"], "id", null)
 }
 
 resource "aws_api_gateway_integration" "proxy" {

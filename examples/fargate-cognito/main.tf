@@ -49,8 +49,13 @@ module "api_cognito_auth" {
   target_domain = join(".", [var.internal_domain, var.project_domain])
   target_methods = ["GET"]
 
-  cognito_domain = join(".", [var.auth_domain, var.project_domain])
-  cognito_user_pool_arn = aws_cognito_user_pool.users.arn
+  cognito = {
+    proxy = {
+      authorizer_id = aws_cognito_user_pool.users.arn
+      cognito_domain = join(".", [var.auth_domain, var.project_domain])
+      type = "COGNITO_USER_POOLS"
+    }
+  }
 
   gateway_domain = join(".", [var.api_domain, var.project_domain])
 

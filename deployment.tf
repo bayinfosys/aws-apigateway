@@ -20,7 +20,15 @@ resource "aws_api_gateway_deployment" "this" {
     [for k in var.target_methods: aws_api_gateway_integration.root[k]],
     [for k in var.target_methods: aws_api_gateway_method.proxy[k]],
     [for k in var.target_methods: aws_api_gateway_method_response.proxy[k]],
-    [for k in var.target_methods: aws_api_gateway_integration.proxy[k]]
+    [for k in var.target_methods: aws_api_gateway_integration.proxy[k]],
+
+    [for k in var.target_methods: aws_api_gateway_method.redoc[k]],
+    [for k in var.target_methods: aws_api_gateway_method_response.redoc[k]],
+    [for k in var.target_methods: aws_api_gateway_integration.redoc[k]],
+
+    [for k in var.target_methods: aws_api_gateway_method.openapi[k]],
+    [for k in var.target_methods: aws_api_gateway_method_response.openapi[k]],
+    [for k in var.target_methods: aws_api_gateway_integration.openapi[k]]
     )))
   }
 
