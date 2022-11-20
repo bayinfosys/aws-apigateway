@@ -54,15 +54,6 @@ variable "tags" {
   default = {}
 }
 
-#variable "cognito" {
-#  type = map(object({
-#    authorizer_id = string
-#    cognito_domain = string
-#    type = string
-#  }))
-#}
-
-
 #
 # routes define the route parts of the api
 # and allow custom authorizers for different routes

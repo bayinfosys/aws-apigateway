@@ -4,7 +4,6 @@
 locals {
   cors_resource_ids = concat([
     aws_api_gateway_rest_api.this.root_resource_id,
-#    aws_api_gateway_resource.routes[*].id
   ],
   [ for k, v in var.routes: aws_api_gateway_resource.routes[k].id ]
   )
