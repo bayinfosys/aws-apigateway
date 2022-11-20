@@ -54,11 +54,31 @@ variable "tags" {
   default = {}
 }
 
-variable "cognito" {
+#variable "cognito" {
+#  type = map(object({
+#    authorizer_id = string
+#    cognito_domain = string
+#    type = string
+#  }))
+#}
+
+
+#
+# routes define the route parts of the api
+# and allow custom authorizers for different routes
+# (i.e., / and /redocs /openapi.json have no auth and /api has auth)
+#
+# authorizer must be { authorization = "NONE" } for no auth
+#
+variable "routes" {
   type = map(object({
-    authorizer_id = string
-    cognito_domain = string
-    type = string
+    path_part = string
+    uri = string
+    authorizer = object({
+      authorization = string
+      authorizer_id = optional(string)
+      cognito_domain = optional(string)
+    })
   }))
 }
 
