@@ -57,14 +57,14 @@ resource "aws_api_gateway_integration" "routes" {
   uri = join("/", ["https:/", var.target_domain, each.value.uri])
 
   # FIXME: these should be variables for the module, but have no use-case yet
-  request_parameters =  {
+  request_parameters =  merge({
     "integration.request.path.${each.key}" = "method.request.path.${each.key}"
     "integration.request.header.host" = "method.request.header.host"
 
     "integration.request.header.x-cognito-subscriber-username" = "context.authorizer.claims.username"
     "integration.request.header.x-cognito-subscriber-email" = "context.authorizer.claims.email"
     "integration.request.header.x-cognito-subscriber-id"    = "context.authorizer.claims.sub"
-  }
+  }, var.integration_routes_request_parameters)
 }
 
 resource "aws_api_gateway_method_response" "routes" {

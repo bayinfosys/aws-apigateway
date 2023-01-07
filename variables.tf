@@ -75,3 +75,7 @@ variable "routes" {
 
 # type must be COGNITO_USER_POOLS
 # authorizer_id = cognito_user_pool_arn = string
+variable "integration_routes_request_parameters" {
+  type = map(string)
+  description = "custom request parameters for integration routes"
+}
